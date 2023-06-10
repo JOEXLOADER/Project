@@ -27,13 +27,19 @@ local Tabs = {
 local HitboxExpander = Tabs.CombatTab:AddLeftGroupbox("Hitbox")
 
 --VisualsTab | Groupboxes
-local PlayerEspSect = Tabs.VisualsTab:AddLeftGroupbox('Player Esp')
-local TcEspSect = Tabs.VisualsTab:AddLeftGroupbox('Tc Esp')
 local CrosshairSect = Tabs.VisualsTab:AddLeftGroupbox('Crosshair')
+local PlayerEspSect = Tabs.VisualsTab:AddLeftGroupbox('Player Esp')
+local TcEspSect = Tabs.VisualsTab:AddLeftGroupbox('TC Esp')
+local LightSect = Tabs.VisualsTab:AddLeftGroupbox('Lighting')
+local ArmSect = Tabs.VisualsTab:AddLeftGroupbox('Arms')
 
 --SettingsTab | Groupboxes
 local NotificationSect = Tabs.SettingsTab:AddLeftGroupbox('Notifications')
+local GuiSect = Tabs.SettingsTab:AddLeftGroupbox('GUIS')
 local WatermarkSect = Tabs.SettingsTab:AddLeftGroupbox('Watermarks')
+
+--UISettings | Groupboxes
+local MenuGroup = Tabs.UISettings:AddLeftGroupbox('Menu')
 
 
 --Notification setup
@@ -59,7 +65,6 @@ local adminNames = {
     ["LordVahoha"] = true,
     ["0EX"] = true,
 }
-
 
 
 function showNotification(title, text, duration)
@@ -131,7 +136,7 @@ game.Players.PlayerAdded:Connect(function(player)
     if adminNames[player.DisplayName] then
         if not Silent and AdminNotification then
             showNotification("Notification", player.DisplayName .. " | Admin Joined", 2)
-            print("Notification" ..player.DisplayName.. "Admin | Joined" )
+            print("Notification", "" ..player.DisplayName.. "Admin | Joined", 5 )
             AdminSound:Play()
             wait(5)
             AdminSound:Stop()
@@ -372,15 +377,6 @@ unloadCrosshair()
 --------------------------------------------------------------------
 
 
---UI Settings
---------------------------------------------------------------------
-local MenuGroup = Tabs.UISettings:AddLeftGroupbox('Menu')
-MenuGroup:AddButton('Unload', function() Library:Unload() unloadCrosshair() end)
-MenuGroup:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', { Default = 'LeftControl', NoUI = true, Text = 'Menu keybind' })
-Library.ToggleKeybind = Options.MenuKeybind
---------------------------------------------------------------------
-
-
 --Save/Theme Manager
 --------------------------------------------------------------------
 ThemeManager:SetLibrary(Library)
@@ -396,14 +392,10 @@ ThemeManager:ApplyToTab(Tabs.UISettings)
 
 --Player Esp
 --------------------------------------------------------------------
-PlayerEspSect:AddToggle('Chams',{
-    Text = 'Player Esp',
-    Default = false,
-    Tooltip = nil,
-})
+PlayerEspSect:AddToggle('Chams',{ Text = 'Player Esp', Default = false, Tooltip = nil, })
 
 Toggles.Chams:AddColorPicker('OutlineColorPicker', {
-    Default = Color3.fromRGB(255, 0, 0),
+    Default = Color3.fromRGB(172, 12, 12),
     Title = 'ESP Outline Color',
     Transparency = 0,
     Callback = function(Value)
@@ -417,7 +409,7 @@ Toggles.Chams:AddColorPicker('OutlineColorPicker', {
 })
 
 Toggles.Chams:AddColorPicker('FillColorPicker', {
-    Default = Color3.new(0, 1, 0),
+    Default = Color3.fromRGB(219, 128, 128),
     Title = 'ESP Fill Color',
     Transparency = 0,
     Callback = function(Value)
@@ -449,7 +441,6 @@ local function runChams()
             end
         end
     end
-
     for _, a in ipairs(workspace:GetChildren()) do
         local b = a:FindFirstChild("Chams")
         if b and b:IsA("Highlight") then
@@ -459,8 +450,8 @@ local function runChams()
 end
 
 Toggles.Chams:OnChanged(runChams)
-Options.OutlineColorPicker:SetValueRGB(Color3.fromRGB(13, 105, 172))
-Options.FillColorPicker:SetValueRGB(Color3.fromRGB(128, 187, 219))
+Options.OutlineColorPicker:SetValueRGB(Color3.fromRGB(172, 12, 12))
+Options.FillColorPicker:SetValueRGB(Color3.fromRGB(219, 128, 128))
 --------------------------------------------------------------------
 
 
@@ -631,13 +622,12 @@ end)
 local UserInputService = game:GetService("UserInputService")
 local TCESPs = {}
 local adorned = false
-local TcColor = Color3.fromRGB(255, 127, 0)
+local TcColor = Color3.fromRGB(118, 20, 20)
 local TcTransparency = 0.3
 local TcX = 2
 local TcY = 6
 local TcZ = 2
-local espEnabled = false
-
+local TcespEnabled = false
 
 local function addTCEsp()
     local parts = workspace:GetDescendants()
@@ -674,16 +664,15 @@ end
 
 local function TcUpdate()
     removeTCEsp()
-    if espEnabled then
+    if TcespEnabled then
         addTCEsp()
         updateTCEspProperties()
     end
 end
 
-
 local TcEspToggle = TcEspSect:AddToggle('TCEsp', { Text = "TC Esp", Default = false })
 TcEspToggle:OnChanged(function(enabled)
-    espEnabled = enabled
+    TcespEnabled = enabled
     if enabled then
         TcUpdate()
     else
@@ -739,6 +728,157 @@ TcEspToggle:AddColorPicker('TcColor', {
         if TcEspToggle.Value then
             updateTCEspProperties()
         end
+    end
+})
+--------------------------------------------------------------------
+
+
+--UI Settings
+--------------------------------------------------------------------
+local function afterUnload()
+    unloadCrosshair()
+    espEnabled = false
+    Toggles.TorsoExpander.Value = false
+    Toggles.HeadExpander.Value = false
+    Toggles.Chams.Value = false
+    Silent = true
+end
+
+MenuGroup:AddButton('Unload', function() Library:Unload()  afterUnload() end)
+MenuGroup:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', { Default = 'LeftControl', NoUI = true, Text = 'Menu keybind' })
+Library.ToggleKeybind = Options.MenuKeybind
+--------------------------------------------------------------------
+
+
+--Lighting
+--------------------------------------------------------------------
+local BulletDerect = game:GetService("ReplicatedStorage").Bullet
+local defaultColor = game:GetService("ReplicatedStorage").Arrow.Trail.Color.Keypoints[1].Value
+local ArrowDect = game:GetService("ReplicatedStorage").Arrow
+local ArrowBrighness = game:GetService("ReplicatedStorage").Arrow.Trail.Brightness
+
+local ArrowLifetimeSlider = LightSect:AddSlider('ArrowLifetimeSlider', {Text = 'Arrow Trial Lifetime', Default = 2, Min = 2, Max = 20, Rounding = 1, Compact = true})
+ArrowLifetimeSlider:OnChanged(function(Value)
+    ArrowDect.Trail.Lifetime = Value
+end)
+
+local ArrowBrightnessSlider = LightSect:AddSlider('ArrowTrialBrightness', {Text = 'Arrow Trial Brightness', Default = ArrowBrighness, Min = 1, Max = 100, Rounding = 1, Compact = true})
+ArrowBrightnessSlider:OnChanged(function(Value)
+    ArrowBrighness = Value
+end)
+
+LightSect:AddLabel('Arrow Trial Color'):AddColorPicker('ArrowTrialColorPicker', {
+    Default = Color3.fromRGB(defaultColor.R * 255, defaultColor.G * 255, defaultColor.B * 255),
+    Title = nil,
+    Transparency = 0,
+    Callback = function(value)
+        game:GetService("ReplicatedStorage").Arrow.Trail.Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(value.R * 255, value.G * 255, value.B * 255)),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(value.R * 255, value.G * 255, value.B * 255))
+        })
+    end
+})
+
+LightSect:AddLabel('Bullet Color'):AddColorPicker('BulletColorPicker', { Default = game:GetService("ReplicatedStorage").Bullet.Color, Title = nil, Transparency = 0, Callback = function(Value)
+    game:GetService("ReplicatedStorage").Bullet.Color = Color3.new(Value.R, Value.G, Value.B)
+    game:GetService("ReplicatedStorage").Bullet.PointLight.Color = Color3.new(Value.R, Value.G, Value.B)
+end
+})
+
+LightSect:AddLabel('Glowstick Color'):AddColorPicker('GlowstickColorPicker', { Default = game:GetService("ReplicatedStorage").HandModels.Glowstick.GlowPart.Color, Title = nil, Transparency = 0, Callback = function(Value)
+    game:GetService("ReplicatedStorage").HandModels.Glowstick.GlowPart.Color = Color3.new(Value.R, Value.G, Value.B)
+    game:GetService("ReplicatedStorage").HandModels.Glowstick.GlowPart.PointLight.Color = Color3.new(Value.R, Value.G, Value.B)
+end
+})
+
+LightSect:AddLabel('ShoulderLight Color (Beta)'):AddColorPicker('ShoulderLightColorPicker', { Default = game:GetService("ReplicatedStorage").ArmorModels.ShoulderLight.Head.Head.SpotLight.Color, Title = nil, Transparency = 0, Callback = function(Value)
+    game:GetService("ReplicatedStorage").ArmorModels.ShoulderLight.Head.Head.SpotLight.Color = Color3.new(Value.R, Value.G, Value.B)
+end
+})
+--------------------------------------------------------------------
+
+--Blood Splatter
+--------------------------------------------------------------------
+local BloodSplatter = game:GetService("Players").LocalPlayer.PlayerGui.GameUI.BloodSplatter
+
+GuiSect:AddToggle('BloodSplatter',{ Text = 'Blood Splatter', Default = true, Tooltip = nil, })
+Toggles.BloodSplatter:OnChanged(function(BS)
+    if BS == true then
+        BloodSplatter.Visible = true
+    elseif BS == false then
+        BloodSplatter.Visible = false
+    end
+end)
+--------------------------------------------------------------------
+
+
+--Chat
+--------------------------------------------------------------------
+Chat = game:GetService("Players").LocalPlayer.PlayerGui.GameUI.Chat
+
+GuiSect:AddToggle('ChatGui',{ Text = 'Chat', Default = true, Tooltip = nil, })
+Toggles.ChatGui:OnChanged(function(C)
+    if C == true then
+        Chat.Visible = true
+    elseif C == false then
+        Chat.Visible = false
+    end
+end)
+--------------------------------------------------------------------
+
+
+--Arms
+--------------------------------------------------------------------
+local ArmDect = workspace.Ignore:WaitForChild("FPSArms")
+
+ArmSect:AddDropdown('ArmMaterial', {
+    Values = { 'Default', 'ForceField', 'SmoothPlastic', 'Neon' },
+    Default = 2,
+    Multi = false,
+    Text = 'Arm Material',
+    Tooltip = nil,
+})
+
+Options.ArmMaterial:OnChanged(function()
+    if Options.ArmMaterial.Value == "ForceField" then 
+        ArmDect.LeftHand.Material = Enum.Material.ForceField
+        ArmDect.LeftLowerArm.Material = Enum.Material.ForceField
+        ArmDect.LeftUpperArm.Material = Enum.Material.ForceField
+        ArmDect.RightHand.Material = Enum.Material.ForceField
+        ArmDect.RightLowerArm.Material = Enum.Material.ForceField
+        ArmDect.RightUpperArm.Material = Enum.Material.ForceField
+    end
+    if Options.ArmMaterial.Value == "SmoothPlastic" then
+        ArmDect.LeftHand.Material = Enum.Material.SmoothPlastic
+        ArmDect.LeftLowerArm.Material = Enum.Material.SmoothPlastic
+        ArmDect.LeftUpperArm.Material = Enum.Material.SmoothPlastic
+        ArmDect.RightHand.Material = Enum.Material.SmoothPlastic
+        ArmDect.RightLowerArm.Material = Enum.Material.SmoothPlastic
+        ArmDect.RightUpperArm.Material = Enum.Material.SmoothPlastic
+    end
+    if Options.ArmMaterial.Value == "Neon" then
+        ArmDect.LeftHand.Material = Enum.Material.Neon
+        ArmDect.LeftLowerArm.Material = Enum.Material.Neon
+        ArmDect.LeftUpperArm.Material = Enum.Material.Neon
+        ArmDect.RightHand.Material = Enum.Material.Neon
+        ArmDect.RightLowerArm.Material = Enum.Material.Neon
+        ArmDect.RightUpperArm.Material = Enum.Material.Neon
+    end
+end)
+
+ArmSect:AddLabel('Arm Color'):AddColorPicker('ArmColorPicker', {
+    Default = Color3.new(0, 0, 0),
+    Title = nil,
+    Transparency = 0,
+    Callback = function(value)
+        local ArmnewColor = BrickColor.new(Color3.new(value.R, value.G, value.B))
+
+        ArmDect.LeftHand.BrickColor = ArmnewColor
+        ArmDect.LeftLowerArm.BrickColor = ArmnewColor
+        ArmDect.LeftUpperArm.BrickColor = ArmnewColor
+        ArmDect.RightHand.BrickColor = ArmnewColor
+        ArmDect.RightLowerArm.BrickColor = ArmnewColor
+        ArmDect.RightUpperArm.BrickColor = ArmnewColor
     end
 })
 --------------------------------------------------------------------
