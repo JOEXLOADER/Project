@@ -4,12 +4,7 @@ local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
 local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
 local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
 
-
-local Window = Library:CreateWindow({
-    Title = 'JOEzeros',
-    Center = true,
-    AutoShow = true,
-})
+local Window = Library:CreateWindow({ Title = 'JoeXPaid | Rewritten | BETA | v2.1', Center = true, AutoShow = true, })
 
 
 --Tabs
@@ -17,6 +12,7 @@ local Window = Library:CreateWindow({
 local Tabs = {
     CombatTab = Window:AddTab('Combat'),
     VisualsTab = Window:AddTab('Visuals'),
+    MiscellaneousTab = Window:AddTab('Miscellaneous'),
     SettingsTab = Window:AddTab('Settings'),
     UISettings = Window:AddTab('UI Menu'),
 }
@@ -26,12 +22,16 @@ local Tabs = {
 --CombatTab | Groupboxes
 local HitboxExpander = Tabs.CombatTab:AddLeftGroupbox("Hitbox")
 
+--VisualsTab | Tabboxes
+local CustomHitsoundsTabBox = Tabs.MiscellaneousTab:AddRightTabbox('Hitsounds')
+
 --VisualsTab | Groupboxes
-local CrosshairSect = Tabs.VisualsTab:AddLeftGroupbox('Crosshair')
+local CrosshairSect = Tabs.MiscellaneousTab:AddLeftGroupbox('Crosshair')
 local PlayerEspSect = Tabs.VisualsTab:AddLeftGroupbox('Player Esp')
-local TcEspSect = Tabs.VisualsTab:AddLeftGroupbox('TC Esp')
-local LightSect = Tabs.VisualsTab:AddLeftGroupbox('Lighting')
-local ArmSect = Tabs.VisualsTab:AddLeftGroupbox('Arms')
+local BaseEspSect = Tabs.VisualsTab:AddLeftGroupbox('Base Esp')
+local LightSect = Tabs.MiscellaneousTab:AddLeftGroupbox('Lighting')
+local ArmSect = Tabs.MiscellaneousTab:AddLeftGroupbox('Arms')
+local WorldSect = Tabs.VisualsTab:AddLeftGroupbox('World')
 
 --SettingsTab | Groupboxes
 local NotificationSect = Tabs.SettingsTab:AddLeftGroupbox('Notifications')
@@ -49,7 +49,9 @@ local AdminNotification = false
 local PlayerJoinedNotification = false
 local PlayerLeftNotification = false
 local NotificationFillColor = Color3.fromRGB(0, 0, 0)
-local NotificationBorderColor = Color3.new(1, 1, 1)
+local NotificationBorderColor = Color3.new(0/255, 97/255, 106/255)
+local NotificationTextColor = Color3.new(1, 1, 1)
+local NotificationTitleColor = Color3.new(1, 1, 1)
 local AdminSoundId = "rbxassetid://3398620867"  -- Replace with the actual asset ID
 local AdminSound = Instance.new("Sound")
 AdminSound.SoundId = AdminSoundId
@@ -65,7 +67,6 @@ local adminNames = {
     ["LordVahoha"] = true,
     ["0EX"] = true,
 }
-
 
 function showNotification(title, text, duration)
     local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
@@ -91,22 +92,22 @@ function showNotification(title, text, duration)
     notificationTitle.Name = "Title"
     notificationTitle.AnchorPoint = Vector2.new(0, 0)
     notificationTitle.BackgroundTransparency = 1
-    notificationTitle.Font = Enum.Font.SourceSansBold
+    notificationTitle.Font = Enum.Font.Cartoon
     notificationTitle.Position = UDim2.new(0, 10, 0, 10)
     notificationTitle.Size = UDim2.new(1, -20, 0, 25)
     notificationTitle.Text = title
-    notificationTitle.TextColor3 = Color3.new(1, 1, 1)
+    notificationTitle.TextColor3 = NotificationTitleColor
     notificationTitle.TextSize = 20
     notificationTitle.Parent = notificationFrame
 
     notificationText.Name = "Text"
     notificationText.AnchorPoint = Vector2.new(0, 0)
     notificationText.BackgroundTransparency = 1
-    notificationText.Font = Enum.Font.SourceSans
+    notificationText.Font = Enum.Font.Cartoon
     notificationText.Position = UDim2.new(0, 10, 0, 35)
     notificationText.Size = UDim2.new(1, -20, 0, 35)
     notificationText.Text = text
-    notificationText.TextColor3 = Color3.new(1, 1, 1)
+    notificationText.TextColor3 = NotificationTextColor
     notificationText.TextSize = 16
     notificationText.Parent = notificationFrame
 
@@ -117,7 +118,6 @@ function showNotification(title, text, duration)
         0.5,
         true
     )
-
     wait(duration)
 
 notificationFrame:TweenPosition(
@@ -215,13 +215,35 @@ Toggles.SilentToggle:AddColorPicker('NotificationFill', {
         NotificationFillColor = Value
     end
 })
+
+NotificationSect:AddLabel('Title'):AddColorPicker('NotificationTitleColorPicker', {
+    Default = NotificationTitleColor,
+    Title = nil,
+    Transparency = 0,
+    Callback = function(Value)
+        NotificationTitleColor = Value
+    end
+})
+
+NotificationSect:AddLabel('Content'):AddColorPicker('NotificationTextColorPicker', {
+    Default = NotificationTextColor,
+    Title = nil,
+    Transparency = 0,
+    Callback = function(Value)
+        NotificationTextColor = Value
+    end
+})
+
+local function UnloadNotification()
+    showNotification("Notification", "JOEzeros Unloaded!", 3)
+end
 --------------------------------------------------------------------
 
 
 --Watermark
 --------------------------------------------------------------------
 Library:SetWatermarkVisibility(true)
-Library:SetWatermark('JOEzeros')
+Library:SetWatermark('JoeXPaid | Rewritten | BETA | v2.1')
 Library.KeybindFrame.Visible = true;
 Library:OnUnload(function()
     print('Unloaded!')
@@ -455,6 +477,127 @@ Options.FillColorPicker:SetValueRGB(Color3.fromRGB(219, 128, 128))
 --------------------------------------------------------------------
 
 
+--Player Backpack ESP
+--------------------------------------------------------------------
+local BackpackEspEnabled = false
+local BackpackEspInstances = {}
+local BPs = {}
+local BackpackTransparency = 0.3
+local BackpackX = 2
+local BackpackY = 2
+local BackpackZ = 0.5
+local BackpackColor = BrickColor.new("Bright green")
+
+local function EnableBackpackEsp()
+    if BackpackEspEnabled then
+        return
+    end
+
+    local parts = workspace:GetDescendants()
+
+    for _, part in ipairs(parts) do
+        if part:IsA("UnionOperation") and part.BrickColor == BrickColor.new("Mid gray") and part.Material == Enum.Material.Fabric then
+            local BackpackEsp = Instance.new("BoxHandleAdornment")
+            BackpackEsp.Adornee = part
+            BackpackEsp.AlwaysOnTop = true
+            BackpackEsp.ZIndex = 0
+            BackpackEsp.Size = Vector3.new(BackpackX, BackpackY, BackpackZ)
+            BackpackEsp.Transparency = BackpackTransparency
+            BackpackEsp.Color = BackpackColor
+            BackpackEsp.Parent = workspace
+            table.insert(BPs, BackpackEsp)
+
+            table.insert(BackpackEspInstances, BackpackEsp)
+        end
+    end
+
+    BackpackEspEnabled = true
+end
+
+local function DisableBackpackEsp()
+    if not BackpackEspEnabled then
+        return
+    end
+
+    for _, espInstance in ipairs(BackpackEspInstances) do
+        espInstance:Destroy()
+    end
+
+    BackpackEspInstances = {}
+    BackpackEspEnabled = false
+end
+
+local function updateBackpackEspProperties()
+    for _, BackpackEsp in ipairs(BPs) do
+        BackpackEsp.Size = Vector3.new(BackpackX, BackpackY, BackpackZ)
+        BackpackEsp.Transparency = BackpackTransparency
+        BackpackEsp.Color = BackpackColor
+    end
+end
+
+PlayerEspSect:AddToggle('BackpackEspToggle', { Text = 'Backpack', Default = false, Tooltip = nil, })
+Toggles.BackpackEspToggle:OnChanged(function(STE)
+    if STE == true then
+        EnableBackpackEsp()
+        while true do
+            if Toggles.BackpackEspToggle.Value then
+            wait(1)
+            DisableBackpackEsp()
+            EnableBackpackEsp()
+            end
+        end
+    elseif STE == false then
+        DisableBackpackEsp()
+    end
+end)
+
+local BackpackTransparencySlider = PlayerEspSect:AddSlider('BackpackTransparencySlider', {Text = 'Transparency', Default = BackpackTransparency, Min = 0, Max = 1, Rounding = 1, Compact = true})
+BackpackTransparencySlider:OnChanged(function(Value)
+    BackpackTransparency = Value
+    if Toggles.BackpackEspToggle.Value then
+        updateBackpackEspProperties()
+    end
+end)
+
+local BackpackSizeXSlider = PlayerEspSect:AddSlider('BackpackXSlider', {Text = 'X', Default = BackpackX, Min = 0.5, Max = 10, Rounding = 1, Compact = true})
+BackpackSizeXSlider:OnChanged(function(Value)
+    BackpackX = Value
+    if Toggles.BackpackEspToggle.Value then
+        updateBackpackEspProperties()
+    end
+end)
+
+local BackpackSizeYSlider = PlayerEspSect:AddSlider('BackpackYSlider', {Text = 'Y', Default = BackpackY, Min = 0.5, Max = 10, Rounding = 1, Compact = true})
+BackpackSizeYSlider:OnChanged(function(Value)
+    BackpackY = Value
+    if Toggles.BackpackEspToggle.Value then
+        updateBackpackEspProperties()
+    end
+end)
+
+local BackpackSizeZSlider = PlayerEspSect:AddSlider('BackpackZSlider', {Text = 'Z', Default = BackpackZ, Min = 0.5, Max = 10, Rounding = 1, Compact = true})
+BackpackSizeZSlider:OnChanged(function(Value)
+    BackpackZ = Value
+    if Toggles.BackpackEspToggle.Value then
+        updateBackpackEspProperties()
+    end
+end)
+
+Toggles.BackpackEspToggle:AddColorPicker('BackpackColorPicker', {
+    Default = BackpackColor.Color,
+    Title = nil,
+    Transparency = 0,
+    Callback = function(value)
+        BackpackColor = BrickColor.new(value)
+
+        for _, BackpackEsp in ipairs(BPs) do
+            BackpackEsp.Color = BackpackColor
+        end
+    end
+})
+--------------------------------------------------------------------
+
+
 --------------------------------------------------------------------
 local Connections = {}
 local Debounce = {}
@@ -481,10 +624,10 @@ end)
 --Hitbox Expander
 --------------------------------------------------------------------
 HitboxExpander:AddToggle('HeadExpander', { Text = "Head", Default = false, })
-HitboxExpander:AddSlider('HeadSize', { Text = "Size", Default = 1, Min = 1, Max = 4, Rounding = 1, Compact = false, })
+HitboxExpander:AddSlider('HeadSize', { Text = "Size", Default = 1, Min = 1, Max = 3, Rounding = 1, Compact = false, })
 HitboxExpander:AddDivider()
 HitboxExpander:AddToggle('TorsoExpander', { Text = "Torso", Default = false, })
-HitboxExpander:AddSlider('TorsoSize', { Text = "Size", Default = 1, Min = 1, Max = 4, Rounding = 1, Compact = false, })
+HitboxExpander:AddSlider('TorsoSize', { Text = "Size", Default = 1, Min = 1, Max = 3, Rounding = 1, Compact = false, })
 
 local Properties = {
 	["Size"] = {
@@ -558,7 +701,6 @@ end)
 --HitSound
 --------------------------------------------------------------------
 local SoundService = game:GetService("SoundService")
-local CustomHitsoundsTabBox = Tabs.VisualsTab:AddRightTabbox('Hitsounds')
 local CustomHitsoundsTab = CustomHitsoundsTabBox:AddTab('Hitsounds')
 
 SoundService.PlayerHitHeadshot.Volume = 5
@@ -617,6 +759,136 @@ end)
 --------------------------------------------------------------------
 
 
+--SpawnTotem Esp
+--------------------------------------------------------------------
+local SpawntotemEspEnabled = false
+local SpawntotemEspInstances = {}
+local STs = {}
+local SpawnTotemTransparency = 0.3
+local SpawnTotemX = 2
+local SpawnTotemY = 0.5
+local SpawnTotemZ = 2
+local SpawnTotemColor = BrickColor.new("Bright blue") -- Store the color globally
+
+local function EnableSpawntotemEsp()
+    if SpawntotemEspEnabled then
+        return
+    end
+
+    local parts = workspace:GetDescendants()
+
+    for _, part in ipairs(parts) do
+        if part:IsA("Part") and part.BrickColor == BrickColor.new("Dark stone grey") and part.Name == "Prim" and part.Material == Enum.Material.Slate then
+            local SpawntotemEsp = Instance.new("BoxHandleAdornment")
+            SpawntotemEsp.Adornee = part
+            SpawntotemEsp.AlwaysOnTop = true
+            SpawntotemEsp.ZIndex = 0
+            SpawntotemEsp.Size = Vector3.new(SpawnTotemX, SpawnTotemY, SpawnTotemZ)
+            SpawntotemEsp.Transparency = SpawnTotemTransparency
+            SpawntotemEsp.Color = SpawnTotemColor -- Use the global color variable
+            SpawntotemEsp.Parent = workspace
+            table.insert(STs, SpawntotemEsp)
+
+            table.insert(SpawntotemEspInstances, SpawntotemEsp)
+        end
+    end
+
+    SpawntotemEspEnabled = true
+end
+
+local function DisableSpawntotemEsp()
+    if not SpawntotemEspEnabled then
+        return
+    end
+
+    for _, espInstance in ipairs(SpawntotemEspInstances) do
+        espInstance:Destroy()
+    end
+
+    SpawntotemEspInstances = {}
+    SpawntotemEspEnabled = false
+end
+
+local function updateSpawnTotemEspProperties()
+    for _, SpawntotemEsp in ipairs(STs) do
+        SpawntotemEsp.Size = Vector3.new(SpawnTotemX, SpawnTotemY, SpawnTotemZ)
+        SpawntotemEsp.Transparency = SpawnTotemTransparency
+        SpawntotemEsp.Color = SpawnTotemColor -- Use the global color variable
+    end
+end
+
+local function SpawnTotemUpdate()
+    DisableSpawntotemEsp()
+    if SpawntotemEspEnabled then
+        EnableSpawntotemEsp()
+        updateSpawnTotemEspProperties()
+    end
+end
+
+BaseEspSect:AddToggle('SpawnTotemEspToggle', { Text = 'Spawn Totem', Default = false, Tooltip = nil, })
+Toggles.SpawnTotemEspToggle:OnChanged(function(STE)
+    if STE == true then
+        EnableSpawntotemEsp()
+    elseif STE == false then
+        DisableSpawntotemEsp()
+    end
+end)
+
+spawn(function()
+    while true do
+        wait(5)
+        SpawnTotemUpdate()
+    end
+end)
+
+local SpawnTotemTransparencySlider = BaseEspSect:AddSlider('SpawnTotemTransparencySlider', {Text = 'Transparency', Default = SpawnTotemTransparency, Min = 0, Max = 1, Rounding = 1, Compact = true})
+SpawnTotemTransparencySlider:OnChanged(function(Value)
+    SpawnTotemTransparency = Value
+    if Toggles.SpawnTotemEspToggle.Value then
+        updateSpawnTotemEspProperties()
+    end
+end)
+
+local SpawnTotemSizeXSlider = BaseEspSect:AddSlider('SpawnTotemXSlider', {Text = 'X', Default = SpawnTotemX, Min = 0.5, Max = 10, Rounding = 1, Compact = true})
+SpawnTotemSizeXSlider:OnChanged(function(Value)
+    SpawnTotemX = Value
+    if Toggles.SpawnTotemEspToggle.Value then
+        updateSpawnTotemEspProperties()
+    end
+end)
+
+local SpawnTotemSizeYSlider = BaseEspSect:AddSlider('SpawnTotemYSlider', {Text = 'Y', Default = SpawnTotemY, Min = 0.5, Max = 10, Rounding = 1, Compact = true})
+SpawnTotemSizeYSlider:OnChanged(function(Value)
+    SpawnTotemY = Value
+    if Toggles.SpawnTotemEspToggle.Value then
+        updateSpawnTotemEspProperties()
+    end
+end)
+
+local SpawnTotemSizeZSlider = BaseEspSect:AddSlider('SpawnTotemZSlider', {Text = 'Z', Default = SpawnTotemZ, Min = 0.5, Max = 10, Rounding = 1, Compact = true})
+SpawnTotemSizeZSlider:OnChanged(function(Value)
+    SpawnTotemZ = Value
+    if Toggles.SpawnTotemEspToggle.Value then
+        updateSpawnTotemEspProperties()
+    end
+end)
+
+Toggles.SpawnTotemEspToggle:AddColorPicker('SpawnTotemColorPicker', {
+    Default = SpawnTotemColor.Color,
+    Title = 'Spawn Totem Color',
+    Transparency = 0,
+    Callback = function(value)
+        SpawnTotemColor = BrickColor.new(value)
+
+        -- Update the color of the spawn totem
+        for _, SpawntotemEsp in ipairs(STs) do
+            SpawntotemEsp.Color = SpawnTotemColor
+        end
+    end
+})
+--------------------------------------------------------------------
+
+
 --Tc Esp
 --------------------------------------------------------------------
 local UserInputService = game:GetService("UserInputService")
@@ -637,7 +909,7 @@ local function addTCEsp()
             TCESP.Adornee = part
             TCESP.AlwaysOnTop = true
             TCESP.ZIndex = 0
-            TCESP.Size = Vector3.new(one, two, three)
+            TCESP.Size = Vector3.new(TcX, TcY, TcZ)
             TCESP.Transparency = TcTransparency
             TCESP.Color3 = TcColor
             TCESP.Parent = workspace
@@ -670,7 +942,7 @@ local function TcUpdate()
     end
 end
 
-local TcEspToggle = TcEspSect:AddToggle('TCEsp', { Text = "TC Esp", Default = false })
+local TcEspToggle = BaseEspSect:AddToggle('TCEsp', { Text = "TC Esp", Default = false })
 TcEspToggle:OnChanged(function(enabled)
     TcespEnabled = enabled
     if enabled then
@@ -687,7 +959,7 @@ spawn(function()
     end
 end)
 
-local TcTransparencySlider = TcEspSect:AddSlider('TcTransparency', {Text = 'Transparency', Default = TcTransparency, Min = 0, Max = 1, Rounding = 1, Compact = true})
+local TcTransparencySlider = BaseEspSect:AddSlider('TcTransparency', {Text = 'Transparency', Default = TcTransparency, Min = 0, Max = 1, Rounding = 1, Compact = true})
 TcTransparencySlider:OnChanged(function(TCT)
     TcTransparency = TCT
     if TcEspToggle.Value then
@@ -695,7 +967,7 @@ TcTransparencySlider:OnChanged(function(TCT)
     end
 end)
 
-local TcSizeXSlider = TcEspSect:AddSlider('TcSizeX', {Text = 'X', Default = TcX, Min = 1, Max = 10, Rounding = 1, Compact = true})
+local TcSizeXSlider = BaseEspSect:AddSlider('TcSizeX', {Text = 'X', Default = TcX, Min = 1, Max = 10, Rounding = 1, Compact = true})
 TcSizeXSlider:OnChanged(function(TCX)
     TcX = TCX
     if TcEspToggle.Value then
@@ -703,7 +975,7 @@ TcSizeXSlider:OnChanged(function(TCX)
     end
 end)
 
-local TcSizeYSlider = TcEspSect:AddSlider('TcSizeY', {Text = 'Y', Default = TcY, Min = 1, Max = 10, Rounding = 1, Compact = true})
+local TcSizeYSlider = BaseEspSect:AddSlider('TcSizeY', {Text = 'Y', Default = TcY, Min = 1, Max = 10, Rounding = 1, Compact = true})
 TcSizeYSlider:OnChanged(function(TCY)
     TcY = TCY
     if TcEspToggle.Value then
@@ -711,7 +983,7 @@ TcSizeYSlider:OnChanged(function(TCY)
     end
 end)
 
-local TcSizeZSlider = TcEspSect:AddSlider('TcSizeZ', {Text = 'Z', Default = TcZ, Min = 1, Max = 10, Rounding = 1, Compact = true})
+local TcSizeZSlider = BaseEspSect:AddSlider('TcSizeZ', {Text = 'Z', Default = TcZ, Min = 1, Max = 10, Rounding = 1, Compact = true})
 TcSizeZSlider:OnChanged(function(TCZ)
     TcZ = TCZ
     if TcEspToggle.Value then
@@ -737,7 +1009,7 @@ TcEspToggle:AddColorPicker('TcColor', {
 --------------------------------------------------------------------
 local function afterUnload()
     unloadCrosshair()
-    espEnabled = false
+    UnloadNotification()
     Toggles.TorsoExpander.Value = false
     Toggles.HeadExpander.Value = false
     Toggles.Chams.Value = false
@@ -752,7 +1024,6 @@ Library.ToggleKeybind = Options.MenuKeybind
 
 --Lighting
 --------------------------------------------------------------------
-local BulletDerect = game:GetService("ReplicatedStorage").Bullet
 local defaultColor = game:GetService("ReplicatedStorage").Arrow.Trail.Color.Keypoints[1].Value
 local ArrowDect = game:GetService("ReplicatedStorage").Arrow
 local ArrowBrighness = game:GetService("ReplicatedStorage").Arrow.Trail.Brightness
@@ -765,6 +1036,11 @@ end)
 local ArrowBrightnessSlider = LightSect:AddSlider('ArrowTrialBrightness', {Text = 'Arrow Trial Brightness', Default = ArrowBrighness, Min = 1, Max = 100, Rounding = 1, Compact = true})
 ArrowBrightnessSlider:OnChanged(function(Value)
     ArrowBrighness = Value
+end)
+
+local GlowstickRangeSlider = LightSect:AddSlider('GlowstickRange', {Text = 'Glowstick Range', Default = game:GetService("ReplicatedStorage").HandModels.Glowstick.GlowPart.PointLight.Range, Min = 1, Max = 60, Rounding = 1, Compact = true})
+GlowstickRangeSlider:OnChanged(function(Value)
+    game:GetService("ReplicatedStorage").HandModels.Glowstick.GlowPart.PointLight.Range = Value
 end)
 
 LightSect:AddLabel('Arrow Trial Color'):AddColorPicker('ArrowTrialColorPicker', {
@@ -791,11 +1067,16 @@ LightSect:AddLabel('Glowstick Color'):AddColorPicker('GlowstickColorPicker', { D
 end
 })
 
-LightSect:AddLabel('ShoulderLight Color (Beta)'):AddColorPicker('ShoulderLightColorPicker', { Default = game:GetService("ReplicatedStorage").ArmorModels.ShoulderLight.Head.Head.SpotLight.Color, Title = nil, Transparency = 0, Callback = function(Value)
-    game:GetService("ReplicatedStorage").ArmorModels.ShoulderLight.Head.Head.SpotLight.Color = Color3.new(Value.R, Value.G, Value.B)
-end
+LightSect:AddLabel('Cloud Color'):AddColorPicker('CloudsColorPicker', {
+    Default = Color3.fromRGB(172, 12, 12),
+    Title = nil,
+    Transparency = 0,
+    Callback = function(Value)
+        workspace.Terrain.Clouds.Color = Value
+    end
 })
 --------------------------------------------------------------------
+
 
 --Blood Splatter
 --------------------------------------------------------------------
@@ -832,10 +1113,10 @@ end)
 local ArmDect = workspace.Ignore:WaitForChild("FPSArms")
 
 ArmSect:AddDropdown('ArmMaterial', {
-    Values = { 'Default', 'ForceField', 'SmoothPlastic', 'Neon' },
+    Values = { 'ForceField', 'SmoothPlastic', 'Neon' },
     Default = 2,
     Multi = false,
-    Text = 'Arm Material',
+    Text = 'Material',
     Tooltip = nil,
 })
 
@@ -882,3 +1163,69 @@ ArmSect:AddLabel('Arm Color'):AddColorPicker('ArmColorPicker', {
     end
 })
 --------------------------------------------------------------------
+
+
+--Grass
+--------------------------------------------------------------------
+WorldSect:AddToggle('Grass', { Text = 'Grass', Default = true, Tooltip = nil, })
+Toggles.Grass:OnChanged(function(Value)
+    sethiddenproperty(game.Workspace.Terrain, "Decoration", Value)
+end)
+--------------------------------------------------------------------
+
+
+--FreeCam
+--------------------------------------------------------------------
+loadstring(game:HttpGet("https://pastebin.com/raw/5PmGhXKz"))()
+
+WorldSect:AddLabel('Free Cam'):AddKeyPicker('FreeCam', { Default = 'F1', Text = 'FreeCam Beta', Tooltip = nil, NoUI = false, })
+Options.FreeCam:OnClick(function()
+    ToggleFreecam();
+end)
+--------------------------------------------------------------------
+
+
+--Particles
+--------------------------------------------------------------------
+GuiSect:AddToggle('Particles',{ Text = 'Particles', Default = true, Tooltip = nil, })
+Toggles.Particles:OnChanged(function(Value)
+    if Value == true then
+        game:GetService("ReplicatedStorage").Particles.Blood.Enabled = true
+        game:GetService("ReplicatedStorage").Particles.Grass.Enabled = true
+        game:GetService("ReplicatedStorage").Particles.MuzzleFlash.Enabled = true
+        game:GetService("ReplicatedStorage").Particles.Sand.Enabled = true
+        game:GetService("ReplicatedStorage").Particles.Sparks.Enabled = true
+        game:GetService("ReplicatedStorage").Particles.Stone.Enabled = true
+        game:GetService("ReplicatedStorage").Particles.Water.Enabled = true
+        game:GetService("ReplicatedStorage").Particles.Wood.Enabled = true
+    elseif Value == false then
+        game:GetService("ReplicatedStorage").Particles.Blood.Enabled = false
+        game:GetService("ReplicatedStorage").Particles.Grass.Enabled = false
+        game:GetService("ReplicatedStorage").Particles.MuzzleFlash.Enabled = false
+        game:GetService("ReplicatedStorage").Particles.Sand.Enabled = false
+        game:GetService("ReplicatedStorage").Particles.Sparks.Enabled = false
+        game:GetService("ReplicatedStorage").Particles.Stone.Enabled = false
+        game:GetService("ReplicatedStorage").Particles.Water.Enabled = false
+        game:GetService("ReplicatedStorage").Particles.Wood.Enabled = false
+    end
+end)
+--------------------------------------------------------------------
+
+
+--FpsCheck Button
+--------------------------------------------------------------------
+local function checkFps()
+    local fps = 1 / game:GetService("RunService").RenderStepped:Wait()
+    print("FPS: " .. math.floor(fps))
+    showNotification("Notification", math.floor(fps) .. " FPS", 1)
+end
+local function toggleFps()
+    checkFps()
+end
+
+GuiSect:AddButton('Check FPS', function()
+    toggleFps()
+end)
+--------------------------------------------------------------------+
+
+game:GetService("SoundService").Grass.SoundId = "rbxassetid://9120063866"
