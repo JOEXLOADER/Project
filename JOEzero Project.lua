@@ -1114,10 +1114,13 @@ Chat = game:GetService("Players").LocalPlayer.PlayerGui.GameUI.Chat
 
 GuiSect:AddToggle('ChatGui',{ Text = 'Chat', Default = true, Tooltip = nil, })
 Toggles.ChatGui:OnChanged(function(C)
-    while C == true do
+    if C == true then
         Chat.Visible = true
     elseif C == false then
-        Chat.Visible = false
+        while C == false do
+            wait(0.1)
+            Chat.Visible = false
+        end
     end
 end)
 --------------------------------------------------------------------
