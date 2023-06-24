@@ -29,14 +29,19 @@ local CustomHitsoundsTabBox = Tabs.MiscellaneousTab:AddRightTabbox('Hitsounds')
 local CrosshairSect = Tabs.MiscellaneousTab:AddLeftGroupbox('Crosshair')
 local PlayerEspSect = Tabs.VisualsTab:AddLeftGroupbox('Player Esp')
 local BaseEspSect = Tabs.VisualsTab:AddLeftGroupbox('Base Esp')
+local LootCratesEspSect = Tabs.VisualsTab:AddRightGroupbox('Loot Crates Esp')
 local LightSect = Tabs.MiscellaneousTab:AddLeftGroupbox('Lighting')
-local ArmSect = Tabs.MiscellaneousTab:AddLeftGroupbox('Arms')
-local WorldSect = Tabs.VisualsTab:AddLeftGroupbox('World')
+local ArmSect = Tabs.MiscellaneousTab:AddRightGroupbox('Arms')
+local TerrainSect = Tabs.VisualsTab:AddRightGroupbox('Terrain')
+local BuildingSect = Tabs.MiscellaneousTab:AddLeftGroupbox('Building')
+local GunSect = Tabs.MiscellaneousTab:AddRightGroupbox('Guns')
 
 --SettingsTab | Groupboxes
 local NotificationSect = Tabs.SettingsTab:AddLeftGroupbox('Notifications')
 local GuiSect = Tabs.SettingsTab:AddLeftGroupbox('GUIS')
 local WatermarkSect = Tabs.SettingsTab:AddLeftGroupbox('Watermarks')
+local CameraSect = Tabs.SettingsTab:AddRightGroupbox('Camera')
+local ServerSect = Tabs.SettingsTab:AddRightGroupbox('Server')
 
 --UISettings | Groupboxes
 local MenuGroup = Tabs.UISettings:AddLeftGroupbox('Menu')
@@ -52,7 +57,7 @@ local NotificationFillColor = Color3.fromRGB(0, 0, 0)
 local NotificationBorderColor = Color3.new(0/255, 97/255, 106/255)
 local NotificationTextColor = Color3.new(1, 1, 1)
 local NotificationTitleColor = Color3.new(1, 1, 1)
-local AdminSoundId = "rbxassetid://3398620867"  -- Replace with the actual asset ID
+local AdminSoundId = "rbxassetid://3398620867"
 local AdminSound = Instance.new("Sound")
 AdminSound.SoundId = AdminSoundId
 AdminSound.Volume = 0.5
@@ -118,7 +123,7 @@ function showNotification(title, text, duration)
         0.5,
         true
     )
-    wait(duration)
+    task.wait(duration)
 
 notificationFrame:TweenPosition(
     UDim2.new(0, 10, 1, 70),
@@ -136,9 +141,9 @@ game.Players.PlayerAdded:Connect(function(player)
     if adminNames[player.DisplayName] then
         if not Silent and AdminNotification then
             showNotification("Notification", player.DisplayName .. " | Admin Joined", 2)
-            print("Notification", "" ..player.DisplayName.. "Admin | Joined", 5 )
+            print("Notification", "" ..player.DisplayName.. "Admin | Joined", 6 )
             AdminSound:Play()
-            wait(5)
+            task.wait(6)
             AdminSound:Stop()
         end
     else
@@ -240,6 +245,7 @@ end
 --------------------------------------------------------------------
 
 
+
 --Watermark
 --------------------------------------------------------------------
 Library:SetWatermarkVisibility(true)
@@ -274,6 +280,24 @@ end)
 WatermarkSect:AddToggle('ST', { Text = 'Server Stats', Default = true, Tooltip = nil, })
 Toggles.ST:OnChanged(function(ServerStatuss)
 	game:GetService("Players").LocalPlayer.PlayerGui.GameUI.ServerStatus.Visible = ServerStatuss
+end)
+
+ServerSect:AddInput('ServerInfoTextbox', {
+    Default = game:GetService("Players").LocalPlayer.PlayerGui.GameUI.ServerInfo.Text,
+    Numeric = false,
+    Finished = false,
+    Text = "Server Info Text",
+    Tooltip = nil,
+    Placeholder = nil,
+
+    Callback = function(Value)
+        game:GetService("Players").LocalPlayer.PlayerGui.GameUI.ServerInfo.Text = Value
+    end
+})
+
+local ServerInfo = game:GetService("Players").LocalPlayer.PlayerGui.GameUI.ServerInfo.Text
+ServerSect:AddButton('Server Info', function()
+    showNotification("Notification", ""..ServerInfo, 3)
 end)
 --------------------------------------------------------------------
 
@@ -447,7 +471,7 @@ Toggles.Chams:AddColorPicker('FillColorPicker', {
 
 local function runChams()
     while Toggles.Chams.Value do
-        wait(0.01)
+        task.wait(0.01)
         for i, a in ipairs(workspace:GetChildren()) do
             if a:FindFirstChild("HumanoidRootPart") then
                 if not a:FindFirstChild("Chams") then
@@ -487,6 +511,7 @@ local BackpackX = 2
 local BackpackY = 2
 local BackpackZ = 0.5
 local BackpackColor = BrickColor.new("Bright green")
+local isBackpackEspEnabled = false
 
 local function EnableBackpackEsp()
     if BackpackEspEnabled then
@@ -537,16 +562,18 @@ end
 
 PlayerEspSect:AddToggle('BackpackEspToggle', { Text = 'Backpack', Default = false, Tooltip = nil, })
 Toggles.BackpackEspToggle:OnChanged(function(STE)
-    if STE == true then
+    if STE then
         EnableBackpackEsp()
-        while true do
-            if Toggles.BackpackEspToggle.Value then
-            wait(1)
+        isBackpackEspEnabled = true
+        repeat
+            task.wait(1)
             DisableBackpackEsp()
             EnableBackpackEsp()
-            end
-        end
-    elseif STE == false then
+            updateBackpackEspProperties()
+        until not isBackpackEspEnabled
+        DisableBackpackEsp()
+    else
+        isBackpackEspEnabled = false
         DisableBackpackEsp()
     end
 end)
@@ -768,7 +795,8 @@ local SpawnTotemTransparency = 0.3
 local SpawnTotemX = 2
 local SpawnTotemY = 0.5
 local SpawnTotemZ = 2
-local SpawnTotemColor = BrickColor.new("Bright blue") -- Store the color globally
+local SpawnTotemColor = BrickColor.new("Bright blue")
+local isSpawnTotemEspEnabled = false
 
 local function EnableSpawntotemEsp()
     if SpawntotemEspEnabled then
@@ -785,7 +813,7 @@ local function EnableSpawntotemEsp()
             SpawntotemEsp.ZIndex = 0
             SpawntotemEsp.Size = Vector3.new(SpawnTotemX, SpawnTotemY, SpawnTotemZ)
             SpawntotemEsp.Transparency = SpawnTotemTransparency
-            SpawntotemEsp.Color = SpawnTotemColor -- Use the global color variable
+            SpawntotemEsp.Color = SpawnTotemColor
             SpawntotemEsp.Parent = workspace
             table.insert(STs, SpawntotemEsp)
 
@@ -813,31 +841,25 @@ local function updateSpawnTotemEspProperties()
     for _, SpawntotemEsp in ipairs(STs) do
         SpawntotemEsp.Size = Vector3.new(SpawnTotemX, SpawnTotemY, SpawnTotemZ)
         SpawntotemEsp.Transparency = SpawnTotemTransparency
-        SpawntotemEsp.Color = SpawnTotemColor -- Use the global color variable
-    end
-end
-
-local function SpawnTotemUpdate()
-    DisableSpawntotemEsp()
-    if SpawntotemEspEnabled then
-        EnableSpawntotemEsp()
-        updateSpawnTotemEspProperties()
+        SpawntotemEsp.Color = SpawnTotemColor
     end
 end
 
 BaseEspSect:AddToggle('SpawnTotemEspToggle', { Text = 'Spawn Totem', Default = false, Tooltip = nil, })
-Toggles.SpawnTotemEspToggle:OnChanged(function(STE)
-    if STE == true then
+Toggles.SpawnTotemEspToggle:OnChanged(function(Value)
+    if Value then
         EnableSpawntotemEsp()
-    elseif STE == false then
+        isSpawnTotemEspEnabled = true
+        repeat
+            task.wait(1)
+            DisableSpawntotemEsp()
+            EnableSpawntotemEsp()
+            updateSpawnTotemEspProperties()
+        until not isSpawnTotemEspEnabled
         DisableSpawntotemEsp()
-    end
-end)
-
-spawn(function()
-    while true do
-        wait(5)
-        SpawnTotemUpdate()
+    else
+        isSpawnTotemEspEnabled = false
+        DisableSpawntotemEsp()
     end
 end)
 
@@ -880,7 +902,6 @@ Toggles.SpawnTotemEspToggle:AddColorPicker('SpawnTotemColorPicker', {
     Callback = function(value)
         SpawnTotemColor = BrickColor.new(value)
 
-        -- Update the color of the spawn totem
         for _, SpawntotemEsp in ipairs(STs) do
             SpawntotemEsp.Color = SpawnTotemColor
         end
@@ -891,10 +912,8 @@ Toggles.SpawnTotemEspToggle:AddColorPicker('SpawnTotemColorPicker', {
 
 --Tc Esp
 --------------------------------------------------------------------
-local UserInputService = game:GetService("UserInputService")
 local TCESPs = {}
-local adorned = false
-local TcColor = Color3.fromRGB(118, 20, 20)
+local TcColor = Color3.fromRGB(113, 20, 118)
 local TcTransparency = 0.3
 local TcX = 2
 local TcY = 6
@@ -943,19 +962,12 @@ local function TcUpdate()
 end
 
 local TcEspToggle = BaseEspSect:AddToggle('TCEsp', { Text = "TC Esp", Default = false })
-TcEspToggle:OnChanged(function(enabled)
-    TcespEnabled = enabled
-    if enabled then
+TcEspToggle:OnChanged(function(Value)
+    TcespEnabled = Value
+    if Value then
         TcUpdate()
     else
         removeTCEsp()
-    end
-end)
-
-spawn(function()
-    while true do
-        wait(5)
-        TcUpdate()
     end
 end)
 
@@ -1010,6 +1022,7 @@ TcEspToggle:AddColorPicker('TcColor', {
 local function afterUnload()
     unloadCrosshair()
     UnloadNotification()
+    removeTCEsp()
     Toggles.TorsoExpander.Value = false
     Toggles.HeadExpander.Value = false
     Toggles.Chams.Value = false
@@ -1110,56 +1123,97 @@ end)
 
 --Arms
 --------------------------------------------------------------------
-local ArmDect = workspace.Ignore:WaitForChild("FPSArms")
+local ArmMaterial = Enum.Material.ForceField
+local ArmColor = Color3.fromRGB(255, 255, 255)
+
+local function updateArms()
+    for _, part in pairs(workspace.Ignore.FPSArms:GetDescendants()) do
+        if part:IsA("MeshPart") then
+            part.Material = ArmMaterial
+            part.Color = ArmColor
+        end
+    end
+end
 
 ArmSect:AddDropdown('ArmMaterial', {
     Values = { 'ForceField', 'SmoothPlastic', 'Neon' },
-    Default = 2,
+    Default = 1,
     Multi = false,
     Text = 'Material',
     Tooltip = nil,
 })
 
 Options.ArmMaterial:OnChanged(function()
-    if Options.ArmMaterial.Value == "ForceField" then 
-        ArmDect.LeftHand.Material = Enum.Material.ForceField
-        ArmDect.LeftLowerArm.Material = Enum.Material.ForceField
-        ArmDect.LeftUpperArm.Material = Enum.Material.ForceField
-        ArmDect.RightHand.Material = Enum.Material.ForceField
-        ArmDect.RightLowerArm.Material = Enum.Material.ForceField
-        ArmDect.RightUpperArm.Material = Enum.Material.ForceField
+    if Options.ArmMaterial.Value == "ForceField" then
+        ArmMaterial = Enum.Material.ForceField
+        updateArms()
     end
     if Options.ArmMaterial.Value == "SmoothPlastic" then
-        ArmDect.LeftHand.Material = Enum.Material.SmoothPlastic
-        ArmDect.LeftLowerArm.Material = Enum.Material.SmoothPlastic
-        ArmDect.LeftUpperArm.Material = Enum.Material.SmoothPlastic
-        ArmDect.RightHand.Material = Enum.Material.SmoothPlastic
-        ArmDect.RightLowerArm.Material = Enum.Material.SmoothPlastic
-        ArmDect.RightUpperArm.Material = Enum.Material.SmoothPlastic
+        ArmMaterial = Enum.Material.SmoothPlastic
+        updateArms()
     end
     if Options.ArmMaterial.Value == "Neon" then
-        ArmDect.LeftHand.Material = Enum.Material.Neon
-        ArmDect.LeftLowerArm.Material = Enum.Material.Neon
-        ArmDect.LeftUpperArm.Material = Enum.Material.Neon
-        ArmDect.RightHand.Material = Enum.Material.Neon
-        ArmDect.RightLowerArm.Material = Enum.Material.Neon
-        ArmDect.RightUpperArm.Material = Enum.Material.Neon
+        ArmMaterial = Enum.Material.Neon
+        updateArms()
     end
 end)
 
 ArmSect:AddLabel('Arm Color'):AddColorPicker('ArmColorPicker', {
-    Default = Color3.new(0, 0, 0),
+    Default = ArmColor,
     Title = nil,
     Transparency = 0,
-    Callback = function(value)
-        local ArmnewColor = BrickColor.new(Color3.new(value.R, value.G, value.B))
+    Callback = function(Value)
+        ArmColor = Value
+        updateArms()
+    end
+})
+--------------------------------------------------------------------
 
-        ArmDect.LeftHand.BrickColor = ArmnewColor
-        ArmDect.LeftLowerArm.BrickColor = ArmnewColor
-        ArmDect.LeftUpperArm.BrickColor = ArmnewColor
-        ArmDect.RightHand.BrickColor = ArmnewColor
-        ArmDect.RightLowerArm.BrickColor = ArmnewColor
-        ArmDect.RightUpperArm.BrickColor = ArmnewColor
+
+--Guns
+--------------------------------------------------------------------
+local GunMaterial = Enum.Material.ForceField
+local GunColor = Color3.fromRGB(255, 255, 255)
+
+local function updateGuns()
+    for _, part in pairs(game:GetService("ReplicatedStorage"):WaitForChild("HandModels"):GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.Material = GunMaterial
+            part.Color = GunColor
+        end
+    end
+end
+
+GunSect:AddDropdown('GunMaterial', {
+    Values = { 'ForceField', 'SmoothPlastic', 'Neon' },
+    Default = 1,
+    Multi = false,
+    Text = 'Material',
+    Tooltip = nil,
+})
+
+Options.GunMaterial:OnChanged(function()
+    if Options.GunMaterial.Value == "ForceField" then
+        GunMaterial = Enum.Material.ForceField
+        updateGuns()
+    end
+    if Options.GunMaterial.Value == "SmoothPlastic" then
+        GunMaterial = Enum.Material.SmoothPlastic
+        updateGuns()
+    end
+    if Options.GunMaterial.Value == "Neon" then
+        GunMaterial = Enum.Material.Neon
+        updateGuns()
+    end
+end)
+
+GunSect:AddLabel('GunColor'):AddColorPicker('GunColor', {
+    Default = GunColor,
+    Title = nil,
+    Transparency = 0,
+    Callback = function(Value)
+        GunColor = Value
+        updateGuns()
     end
 })
 --------------------------------------------------------------------
@@ -1167,7 +1221,7 @@ ArmSect:AddLabel('Arm Color'):AddColorPicker('ArmColorPicker', {
 
 --Grass
 --------------------------------------------------------------------
-WorldSect:AddToggle('Grass', { Text = 'Grass', Default = true, Tooltip = nil, })
+TerrainSect:AddToggle('Grass', { Text = 'Grass', Default = true, Tooltip = nil, })
 Toggles.Grass:OnChanged(function(Value)
     sethiddenproperty(game.Workspace.Terrain, "Decoration", Value)
 end)
@@ -1177,8 +1231,7 @@ end)
 --FreeCam
 --------------------------------------------------------------------
 loadstring(game:HttpGet("https://pastebin.com/raw/5PmGhXKz"))()
-
-WorldSect:AddLabel('Free Cam'):AddKeyPicker('FreeCam', { Default = 'F1', Text = 'FreeCam Beta', Tooltip = nil, NoUI = false, })
+CameraSect:AddLabel('Free Cam'):AddKeyPicker('FreeCam', { Default = 'F1', Text = 'FreeCam Beta', Tooltip = nil, NoUI = false, })
 Options.FreeCam:OnClick(function()
     ToggleFreecam();
 end)
@@ -1226,6 +1279,294 @@ end
 GuiSect:AddButton('Check FPS', function()
     toggleFps()
 end)
---------------------------------------------------------------------+
+--------------------------------------------------------------------
 
-game:GetService("SoundService").Grass.SoundId = "rbxassetid://9120063866"
+
+--Building
+--------------------------------------------------------------------
+BuildingSect:AddLabel('Wooden Wall Color'):AddColorPicker('WoodenWallColor', {
+    Default = game:GetService("ReplicatedStorage").BuildGrades.Wall.Wall0.Hitbox.Color,
+    Title = nil,
+    Transparency = 0,
+    Callback = function(Value)
+        game:GetService("ReplicatedStorage").BuildGrades.Wall.Wall0.Hitbox.Color = Value
+    end
+})
+
+BuildingSect:AddLabel('Stone Wall Color'):AddColorPicker('StoneWallColor', {
+    Default = game:GetService("ReplicatedStorage").BuildGrades.Wall.Wall1.Hitbox.Color,
+    Title = nil,
+    Transparency = 0,
+    Callback = function(Value)
+        game:GetService("ReplicatedStorage").BuildGrades.Wall.Wall1.Hitbox.Color = Value
+    end
+})
+
+BuildingSect:AddLabel('Metal Wall Color'):AddColorPicker('MetalWallColor', {
+    Default = game:GetService("ReplicatedStorage").BuildGrades.Wall.Wall2.Hitbox.Color,
+    Title = nil,
+    Transparency = 0,
+    Callback = function(Value)
+        game:GetService("ReplicatedStorage").BuildGrades.Wall.Wall2.Hitbox.Color = Value
+    end
+})
+
+BuildingSect:AddLabel('Steel Wall Color'):AddColorPicker('SteelWallColor', {
+    Default = game:GetService("ReplicatedStorage").BuildGrades.Wall.Wall3.Hitbox.Color,
+    Title = nil,
+    Transparency = 0,
+    Callback = function(Value)
+        game:GetService("ReplicatedStorage").BuildGrades.Wall.Wall3.Hitbox.Color = Value
+    end
+})
+--------------------------------------------------------------------
+
+
+--BoxCrate Esp
+--------------------------------------------------------------------
+local BoxCrateEspEnabled = false
+local BoxCrateEspInstances = {}
+local BCs = {}
+local BoxCrateTransparency = 0.3
+local BoxCrateX = 3.5
+local BoxCrateY = 3.5
+local BoxCrateZ = 3.5
+local BoxCrateColor = BrickColor.new(1, 1, 1)
+local isBoxCrateEspEnabled = false
+
+local function EnableBoxCrateEsp()
+    if BoxCrateEspEnabled then
+        return
+    end
+
+    local parts = workspace:GetDescendants()
+
+    for _, part in ipairs(parts) do
+        if part:IsA("Part") and part.BrickColor == BrickColor.new("Institutional white") and part.Material == Enum.Material.Pebble then
+            local BoxCrateEsp = Instance.new("BoxHandleAdornment")
+            BoxCrateEsp.Adornee = part
+            BoxCrateEsp.AlwaysOnTop = true
+            BoxCrateEsp.ZIndex = 0
+            BoxCrateEsp.Size = Vector3.new(BoxCrateX, BoxCrateY, BoxCrateZ)
+            BoxCrateEsp.Transparency = BoxCrateTransparency
+            BoxCrateEsp.Color = BoxCrateColor
+            BoxCrateEsp.Parent = workspace
+            table.insert(BCs, BoxCrateEsp)
+
+            table.insert(BoxCrateEspInstances, BoxCrateEsp)
+        end
+    end
+
+    BoxCrateEspEnabled = true
+end
+
+local function DisableBoxCrateEsp()
+    if not BoxCrateEspEnabled then
+        return
+    end
+
+    for _, espInstance in ipairs(BoxCrateEspInstances) do
+        espInstance:Destroy()
+    end
+
+    BoxCrateEspInstances = {}
+    BoxCrateEspEnabled = false
+end
+
+local function updateBoxCrateEspProperties()
+    for _, BoxCrateEsp in ipairs(BCs) do
+        BoxCrateEsp.Size = Vector3.new(BoxCrateX, BoxCrateY, BoxCrateZ)
+        BoxCrateEsp.Transparency = BoxCrateTransparency
+        BoxCrateEsp.Color = BoxCrateColor
+    end
+end
+
+LootCratesEspSect:AddToggle('BoxCrateEspToggle', { Text = 'Box Crate', Default = false, Tooltip = nil, })
+Toggles.BoxCrateEspToggle:OnChanged(function(Value)
+    if Value then
+        EnableBoxCrateEsp()
+        isBoxCrateEspEnabled = true
+        repeat
+            task.wait(1)
+            DisableBoxCrateEsp()
+            EnableBoxCrateEsp()
+            updateBoxCrateEspProperties()
+        until not isBoxCrateEspEnabled
+        DisableBoxCrateEsp()
+    else
+        isBoxCrateEspEnabled = false
+        DisableBoxCrateEsp()
+    end
+end)
+
+local BoxCrateTransparencySlider = LootCratesEspSect:AddSlider('BoxCrateTransparencySlider', {Text = 'Transparency', Default = BoxCrateTransparency, Min = 0, Max = 1, Rounding = 1, Compact = true})
+BoxCrateTransparencySlider:OnChanged(function(Value)
+    BoxCrateTransparency = Value
+    if Toggles.BoxCrateEspToggle.Value then
+        updateBoxCrateEspProperties()
+    end
+end)
+
+local BoxCrateSizeXSlider = LootCratesEspSect:AddSlider('BoxCrateXSlider', {Text = 'X', Default = BoxCrateX, Min = 0.5, Max = 10, Rounding = 1, Compact = true})
+BoxCrateSizeXSlider:OnChanged(function(Value)
+    BoxCrateX = Value
+    if Toggles.BoxCrateEspToggle.Value then
+        updateBoxCrateEspProperties()
+    end
+end)
+
+local BoxCrateSizeYSlider = LootCratesEspSect:AddSlider('BoxCrateYSlider', {Text = 'Y', Default = BoxCrateY, Min = 0.5, Max = 10, Rounding = 1, Compact = true})
+BoxCrateSizeYSlider:OnChanged(function(Value)
+    BoxCrateY = Value
+    if Toggles.BoxCrateEspToggle.Value then
+        updateBoxCrateEspProperties()
+    end
+end)
+
+local BoxCrateSizeZSlider = LootCratesEspSect:AddSlider('BoxCrateZSlider', {Text = 'Z', Default = BoxCrateZ, Min = 0.5, Max = 10, Rounding = 1, Compact = true})
+BoxCrateSizeZSlider:OnChanged(function(Value)
+    BoxCrateZ = Value
+    if Toggles.BoxCrateEspToggle.Value then
+        updateBoxCrateEspProperties()
+    end
+end)
+
+Toggles.BoxCrateEspToggle:AddColorPicker('BoxCrateColorPicker', {
+    Default = BoxCrateColor.Color,
+    Title = 'Box Crate Color',
+    Transparency = 0,
+    Callback = function(value)
+        BoxCrateColor = BrickColor.new(value)
+
+        for _, BoxCrateEsp in ipairs(BCs) do
+            BoxCrateEsp.Color = BoxCrateColor
+        end
+    end
+})
+--------------------------------------------------------------------
+
+
+--TransportCrate Esp
+--------------------------------------------------------------------
+local TransportCrateEspEnabled = false
+local TransportCrateEspInstances = {}
+local TRCs = {}
+local TransportCrateTransparency = 0.3
+local TransportCrateX = 2.5
+local TransportCrateY = 3
+local TransportCrateZ = 6
+local TransportCrateColor = BrickColor.new("Bright red")
+local isTransportCrateEspEnabled = false
+
+local function EnableTransportCrateEsp()
+    if TransportCrateEspEnabled then
+        return
+    end
+
+    local parts = workspace:GetDescendants()
+
+    for _, part in ipairs(parts) do
+        if part:IsA("MeshPart") and part.BrickColor == BrickColor.new("Medium stone grey") and part.Material == Enum.Material.Metal then
+            local TransportCrateEsp = Instance.new("BoxHandleAdornment")
+            TransportCrateEsp.Adornee = part
+            TransportCrateEsp.AlwaysOnTop = true
+            TransportCrateEsp.ZIndex = 0
+            TransportCrateEsp.Size = Vector3.new(TransportCrateX, TransportCrateY, TransportCrateZ)
+            TransportCrateEsp.Transparency = TransportCrateTransparency
+            TransportCrateEsp.Color = TransportCrateColor
+            TransportCrateEsp.Parent = workspace
+            table.insert(TRCs, TransportCrateEsp)
+
+            table.insert(TransportCrateEspInstances, TransportCrateEsp)
+        end
+    end
+
+    TransportCrateEspEnabled = true
+end
+
+local function DisableTransportCrateEsp()
+    if not TransportCrateEspEnabled then
+        return
+    end
+
+    for _, espInstance in ipairs(TransportCrateEspInstances) do
+        espInstance:Destroy()
+    end
+
+    TransportCrateEspInstances = {}
+    TransportCrateEspEnabled = false
+end
+
+local function updateTransportCrateEspProperties()
+    for _, TransportCrateEsp in ipairs(TRCs) do
+        TransportCrateEsp.Size = Vector3.new(TransportCrateX, TransportCrateY, TransportCrateZ)
+        TransportCrateEsp.Transparency = TransportCrateTransparency
+        TransportCrateEsp.Color = TransportCrateColor
+    end
+end
+
+LootCratesEspSect:AddToggle('TransportCrateEspToggle', { Text = 'Transport Crate', Default = false, Tooltip = nil, })
+Toggles.TransportCrateEspToggle:OnChanged(function(Value)
+    if Value then
+        EnableTransportCrateEsp()
+        isTransportCrateEspEnabled = true
+        repeat
+            task.wait(1)
+            DisableTransportCrateEsp()
+            EnableTransportCrateEsp()
+            updateTransportCrateEspProperties()
+        until not isTransportCrateEspEnabled
+        DisableTransportCrateEsp()
+    else
+        isTransportCrateEspEnabled = false
+        DisableTransportCrateEsp()
+    end
+end)
+
+local TransportCrateTransparencySlider = LootCratesEspSect:AddSlider('TransportCrateTransparencySlider', {Text = 'Transparency', Default = TransportCrateTransparency, Min = 0, Max = 1, Rounding = 1, Compact = true})
+TransportCrateTransparencySlider:OnChanged(function(Value)
+    TransportCrateTransparency = Value
+    if Toggles.TransportCrateEspToggle.Value then
+        updateTransportCrateEspProperties()
+    end
+end)
+
+local TransportCrateSizeXSlider = LootCratesEspSect:AddSlider('TransportCrateXSlider', {Text = 'X', Default = TransportCrateX, Min = 0.5, Max = 10, Rounding = 1, Compact = true})
+TransportCrateSizeXSlider:OnChanged(function(Value)
+    TransportCrateX = Value
+    if Toggles.TransportCrateEspToggle.Value then
+        updateTransportCrateEspProperties()
+    end
+end)
+
+local TransportCrateSizeYSlider = LootCratesEspSect:AddSlider('TransportCrateYSlider', {Text = 'Y', Default = TransportCrateY, Min = 0.5, Max = 10, Rounding = 1, Compact = true})
+TransportCrateSizeYSlider:OnChanged(function(Value)
+    TransportCrateY = Value
+    if Toggles.TransportCrateEspToggle.Value then
+        updateTransportCrateEspProperties()
+    end
+end)
+
+local TransportCrateSizeZSlider = LootCratesEspSect:AddSlider('TransportCrateZSlider', {Text = 'Z', Default = TransportCrateZ, Min = 0.5, Max = 10, Rounding = 1, Compact = true})
+TransportCrateSizeZSlider:OnChanged(function(Value)
+    TransportCrateZ = Value
+    if Toggles.TransportCrateEspToggle.Value then
+        updateTransportCrateEspProperties()
+    end
+end)
+
+Toggles.TransportCrateEspToggle:AddColorPicker('TransportCrateColorPicker', {
+    Default = TransportCrateColor.Color,
+    Title = 'Transport Crate Color',
+    Transparency = 0,
+    Callback = function(value)
+        TransportCrateColor = BrickColor.new(value)
+
+        for _, TransportCrateEsp in ipairs(TRCs) do
+            TransportCrateEsp.Color = TransportCrateColor
+        end
+    end
+})
+--------------------------------------------------------------------
+
+
