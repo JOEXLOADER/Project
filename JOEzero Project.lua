@@ -2172,7 +2172,7 @@ end)
 
 
 _G.CircleSides = 100
-_G.CircleColor = Color3.fromRGB(1, 0, 0)
+_G.CircleColor = Color3.fromRGB(255, 255, 255)
 _G.CircleTransparency = 1
 _G.CircleRadius = 100
 _G.CircleFilled = false
