@@ -20,6 +20,8 @@ local Tabs = {
 
 
 --CombatTab | Groupboxes
+local SilentAimSector = Tabs.CombatTab:AddLeftGroupbox('SilentAim')
+local SilentAimSector2 = Tabs.CombatTab:AddLeftGroupbox('AimSettings')
 local HitboxExpander = Tabs.CombatTab:AddLeftGroupbox("Hitbox")
 
 --VisualsTab | Tabboxes
@@ -1570,3 +1572,621 @@ Toggles.TransportCrateEspToggle:AddColorPicker('TransportCrateColorPicker', {
 --------------------------------------------------------------------
 
 
+local BowDerect = require(game.ReplicatedStorage.ItemConfigs.Bow)
+local BlunderbussDerect = require(game.ReplicatedStorage.ItemConfigs.Blunderbuss)
+local CrossbowDerect = require(game.ReplicatedStorage.ItemConfigs.Crossbow)
+local USP9Derect = require(game.ReplicatedStorage.ItemConfigs.USP9)
+local RPGDerect = require(game.ReplicatedStorage.ItemConfigs.RPG)
+local M4A1Derect = require(game.ReplicatedStorage.ItemConfigs.M4A1)
+local PipePistolDerect = require(game.ReplicatedStorage.ItemConfigs.PipePistol)
+local PipeSMGDerect = require(game.ReplicatedStorage.ItemConfigs.PipeSMG)
+function NoRecoilOff() --NoReCoil = Off
+    BowDerect.HipRecoil = {
+        rotMag = 0.05,
+        rotSpeed = 3,
+        push = 0.5,
+        returnTime = 0.05,
+        lerp = 0.9,
+        returnLerp = 0.25,
+        cameraY = 0.03,
+        cameraX = 0.05,
+        cameraXShake = 0.5
+    }
+    BowDerect.AimRecoil = {
+        rotMag = 0.2,
+        rotSpeed = 3,
+        push = 0.5,
+        returnTime = 0.05,
+        lerp = 0.9,
+        returnLerp = 0.25,
+        cameraY = 0.03,
+        cameraX = 0.05,
+        cameraXShake = 0.5
+    }
+    BlunderbussDerect.HipRecoil = {
+        rotMag = 0.05,
+        rotSpeed = 3,
+        push = 0.5,
+        returnTime = 0.05,
+        lerp = 0.9,
+        returnLerp = 0.25,
+        cameraY = 0.01,
+        cameraX = 0.05,
+        cameraXShake = 0.5
+    }
+    BlunderbussDerect.AimRecoil = {
+        rotMag = 0.2,
+        rotSpeed = 3,
+        push = 0.5,
+        returnTime = 0.05,
+        lerp = 0.9,
+        returnLerp = 0.25,
+        cameraY = 0.01,
+        cameraX = 0.05,
+        cameraXShake = 0.5
+    }
+    CrossbowDerect.HipRecoil = {
+        rotMag = 0.05,
+        rotSpeed = 3,
+        push = 0.5,
+        returnTime = 0.05,
+        lerp = 0.9,
+        returnLerp = 0.25,
+        cameraY = 0.03,
+        cameraX = 0.05,
+        cameraXShake = 0.5
+    }
+    CrossbowDerect.AimRecoil = {
+        rotMag = 0.2,
+        rotSpeed = 3,
+        push = 0.5,
+        returnTime = 0.05,
+        lerp = 0.9,
+        returnLerp = 0.25,
+        cameraY = 0.03,
+        cameraX = 0.05,
+        cameraXShake = 0.5
+    }
+    USP9Derect.HipRecoil = {
+        rotMag = 0.05,
+        rotSpeed = 3,
+        push = 0.5,
+        returnTime = 0.05,
+        lerp = 0.9,
+        returnLerp = 0.25,
+        cameraY = 0.01,
+        cameraX = 0.05,
+        cameraXShake = 0.5
+    }
+    USP9Derect.AimRecoil = {
+        rotMag = 0.2,
+        rotSpeed = 3,
+        push = 0.5,
+        returnTime = 0.05,
+        lerp = 0.9,
+        returnLerp = 0.25,
+        cameraY = 0.01,
+        cameraX = 0.05,
+        cameraXShake = 0.5
+    }
+    RPGDerect.HipRecoil = {
+        rotMag = 0.05,
+        rotSpeed = 3,
+        push = 0.5,
+        returnTime = 0.05,
+        lerp = 0.9,
+        returnLerp = 0.25,
+        cameraY = 0.01,
+        cameraX = 0.05,
+        cameraXShake = 0.5
+    }
+    RPGDerect.AimRecoil = {
+        rotMag = 0.2,
+        rotSpeed = 3,
+        push = 0.5,
+        returnTime = 0.05,
+        lerp = 0.9,
+        returnLerp = 0.25,
+        cameraY = 0.01,
+        cameraX = 0.05,
+        cameraXShake = 0.5
+    }
+    M4A1Derect.HipRecoil = {
+        rotMag = 0.05,
+        rotSpeed = 3,
+        push = 0.5,
+        returnTime = 0.05,
+        lerp = 0.9,
+        returnLerp = 0.25,
+        cameraY = 0.03,
+        cameraX = 0.05,
+        cameraXShake = 0.5
+    }
+    M4A1Derect.AimRecoil = {
+        rotMag = 0.1,
+        rotSpeed = 7,
+        push = 0.5,
+        returnTime = 0.05,
+        lerp = 0.9,
+        returnLerp = 0.25,
+        cameraY = 0.02,
+        cameraX = 0.03,
+        cameraXShake = 0.5
+    }
+    PipePistolDerect.HipRecoil = {
+        rotMag = 0.05,
+        rotSpeed = 3,
+        push = 0.5,
+        returnTime = 0.05,
+        lerp = 0.9,
+        returnLerp = 0.25,
+        cameraY = 0.01,
+        cameraX = 0.05,
+        cameraXShake = 0.5
+    }
+    PipePistolDerect.AimRecoil = {
+        rotMag = 0.2,
+        rotSpeed = 3,
+        push = 0.5,
+        returnTime = 0.05,
+        lerp = 0.9,
+        returnLerp = 0.25,
+        cameraY = 0.01,
+        cameraX = 0.05,
+        cameraXShake = 0.5
+    }
+    PipeSMGDerect.HipRecoil = {
+        rotMag = 0.05,
+        rotSpeed = 3,
+        push = 0.3,
+        returnTime = 0.05,
+        lerp = 0.9,
+        returnLerp = 0.25,
+        cameraY = 0.03,
+        cameraX = 0.05,
+        cameraXShake = 0.5
+    }
+    PipeSMGDerect.AimRecoil = {
+        rotMag = 0.2,
+        rotSpeed = 3,
+        push = 0.3,
+        returnTime = 0.05,
+        lerp = 0.9,
+        returnLerp = 0.25,
+        cameraY = 0.03,
+        cameraX = 0.05,
+        cameraXShake = 0.5
+    }
+end
+
+function NoRecoilOn() --NoReCoil = On
+    BowDerect.HipRecoil = {
+        rotMag = 0,
+        rotSpeed = 0,
+        push = 0,
+        returnTime = 0,
+        lerp = 0,
+        returnLerp = 0,
+        cameraY = 0,
+        cameraX = 0,
+        cameraXShake = 0
+    }
+    BowDerect.AimRecoil = {
+        rotMag = 0,
+        rotSpeed = 0,
+        push = 0,
+        returnTime = 0,
+        lerp = 0,
+        returnLerp = 0,
+        cameraY = 0,
+        cameraX = 0,
+        cameraXShake = 0
+    }
+    BlunderbussDerect.HipRecoil = {
+        rotMag = 0,
+        rotSpeed = 0,
+        push = 0,
+        returnTime = 0,
+        lerp = 0,
+        returnLerp = 0,
+        cameraY = 0,
+        cameraX = 0,
+        cameraXShake = 0
+    }
+    BlunderbussDerect.AimRecoil = {
+        rotMag = 0,
+        rotSpeed = 0,
+        push = 0,
+        returnTime = 0,
+        lerp = 0,
+        returnLerp = 0,
+        cameraY = 0,
+        cameraX = 0,
+        cameraXShake = 0
+    }
+    CrossbowDerect.HipRecoil = {
+        rotMag = 0,
+        rotSpeed = 0,
+        push = 0,
+        returnTime = 0,
+        lerp = 0,
+        returnLerp = 0,
+        cameraY = 0,
+        cameraX = 0,
+        cameraXShake = 0
+    }
+    CrossbowDerect.AimRecoil = {
+        rotMag = 0,
+        rotSpeed = 0,
+        push = 0,
+        returnTime = 0,
+        lerp = 0,
+        returnLerp = 0,
+        cameraY = 0,
+        cameraX = 0,
+        cameraXShake = 0
+    }
+    USP9Derect.HipRecoil = {
+        rotMag = 0,
+        rotSpeed = 0,
+        push = 0,
+        returnTime = 0,
+        lerp = 0,
+        returnLerp = 0,
+        cameraY = 0,
+        cameraX = 0,
+        cameraXShake = 0
+    }
+    USP9Derect.AimRecoil = {
+        rotMag = 0,
+        rotSpeed = 0,
+        push = 0,
+        returnTime = 0,
+        lerp = 0,
+        returnLerp = 0,
+        cameraY = 0,
+        cameraX = 0,
+        cameraXShake = 0
+    }
+    RPGDerect.HipRecoil = {
+        rotMag = 0,
+        rotSpeed = 0,
+        push = 0,
+        returnTime = 0,
+        lerp = 0,
+        returnLerp = 0,
+        cameraY = 0,
+        cameraX = 0,
+        cameraXShake = 0
+    }
+    RPGDerect.AimRecoil = {
+        rotMag = 0,
+        rotSpeed = 0,
+        push = 0,
+        returnTime = 0,
+        lerp = 0,
+        returnLerp = 0,
+        cameraY = 0,
+        cameraX = 0,
+        cameraXShake = 0
+    }
+    M4A1Derect.HipRecoil = {
+        rotMag = 0,
+        rotSpeed = 0,
+        push = 0,
+        returnTime = 0,
+        lerp = 0,
+        returnLerp = 0,
+        cameraY = 0,
+        cameraX = 0,
+        cameraXShake = 0
+    }
+    M4A1Derect.AimRecoil = {
+        rotMag = 0,
+        rotSpeed = 0,
+        push = 0,
+        returnTime = 0,
+        lerp = 0,
+        returnLerp = 0,
+        cameraY = 0,
+        cameraX = 0,
+        cameraXShake = 0
+    }
+    PipePistolDerect.HipRecoil = {
+        rotMag = 0,
+        rotSpeed = 0,
+        push = 0,
+        returnTime = 0,
+        lerp = 0,
+        returnLerp = 0,
+        cameraY = 0,
+        cameraX = 0,
+        cameraXShake = 0
+    }
+    PipePistolDerect.AimRecoil = {
+        rotMag = 0,
+        rotSpeed = 0,
+        push = 0,
+        returnTime = 0,
+        lerp = 0,
+        returnLerp = 0,
+        cameraY = 0,
+        cameraX = 0,
+        cameraXShake = 0
+    }
+    PipeSMGDerect.HipRecoil = {
+        rotMag = 0,
+        rotSpeed = 0,
+        push = 0,
+        returnTime = 0,
+        lerp = 0,
+        returnLerp = 0,
+        cameraY = 0,
+        cameraX = 0,
+        cameraXShake = 0
+    }
+    PipeSMGDerect.AimRecoil = {
+        rotMag = 0,
+        rotSpeed = 0,
+        push = 0,
+        returnTime = 0,
+        lerp = 0,
+        returnLerp = 0,
+        cameraY = 0,
+        cameraX = 0,
+        cameraXShake = 0
+    }
+end
+
+function NoSpreedOff() --NoSpread = Off
+    BowDerect.Accuracy = 3000
+    BlunderbussDerect.Accuracy = 1200
+    CrossbowDerect.Accuracy = 5000
+    USP9Derect.Accuracy = 5000
+    RPGDerect.Accuracy = 7000
+    M4A1Derect.Accuracy = 7000
+    PipePistolDerect.Accuracy = 4000
+    PipeSMGDerect.Accuracy = 5000
+end
+
+function NoSpreedOn() --NoSpread = on
+    BowDerect.Accuracy = 9999999
+    BlunderbussDerect.Accuracy = 9999999
+    CrossbowDerect.Accuracy = 9999999
+    USP9Derect.Accuracy = 9999999
+    RPGDerect.Accuracy = 9999999
+    M4A1Derect.Accuracy = 9999999
+    PipePistolDerect.Accuracy = 9999999
+    PipeSMGDerect.Accuracy = 9999999
+end
+
+GunSect:AddToggle('NoRecoilAndSpreadToggle', { Text = 'No Recoil|Spread', Default = false, Tooltip = nil, })
+Toggles.NoRecoilAndSpreadToggle:OnChanged(function(NRT)
+    if NRT == true then
+        NoRecoilOn()
+        NoSpreedOn()
+    elseif NRT == false then
+        NoRecoilOff()
+        NoSpreedOff()
+    end
+end)
+
+getgenv().StartNotification = true
+
+getgenv()._Aimbot = {
+    Enabled = false,
+    AimSmooth = 3,
+    X_Offset = 0,
+    Y_Offset = 0
+}
+
+getgenv()._Cameras = {
+    aaaa = false,
+    Abobus = nil,
+    X_Offset = 0,
+    Y_Offset = 0
+}
+
+getgenv().ASSettings = {
+    AimType = "To Cursor",
+    AimDis = 200,
+    AimSleepers = false,
+    VisibleCheck = false,
+    Prediction = false,
+}
+
+getgenv()._Toggles = {
+    ESP = false,
+    Noclip = false,
+    OreESP = false
+}
+
+
+
+local _Network = getrenv()._G.modules.Network;
+local _Player = getrenv()._G.modules.Player;
+local _Character = getrenv()._G.modules.Character;
+local _Camera = getrenv()._G.modules.Camera;
+local Players = game:GetService("Players");
+local LocalPlayer = Players.LocalPlayer;
+local Camera = game:GetService("Workspace").Camera;
+local Mouse = LocalPlayer:GetMouse();
+
+local function IsSleeping(head)
+    return (head.Rotation == Vector3.new(0, 0, -75) or head.Rotation == Vector3.new(0, 0, 45)) -- Jank
+end
+function isPartVisible(part)
+    local ignore = workspace.Ignore:GetDescendants();
+    local castPoints = { part.Position }
+    return Camera:GetPartsObscuringTarget(castPoints, ignore)
+end
+
+function getClosestPlayerToCursor()
+    local closestPlayer = nil;
+    local shortestDistance = ASSettings["AimDis"];
+    for i, v in pairs(workspace:GetChildren()) do
+        if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v.Name ~= "Player" then
+            if v.PrimaryPart ~= nil and v:FindFirstChild("Head") then
+                if (not isPartVisible(v.PrimaryPart) and not ASSettings["VisibleCheck"]) or (IsSleeping(v.Head) and not ASSettings["AimSleepers"]) then
+                    return nil;
+                end
+                local pos = Camera.WorldToViewportPoint(Camera, v.PrimaryPart.Position)
+                local magnitude = (Vector2.new(pos.X, pos.Y) - Vector2.new(Mouse.X, Mouse.Y)).magnitude
+                if magnitude < shortestDistance then
+                    closestPlayer = v
+                    shortestDistance = magnitude
+                end
+            end
+        end
+    end
+    return closestPlayer
+end
+
+function getClosestPlayerToPlayer()
+    local closestPlayer = nil;
+    local shortestDistance = ASSettings["AimDis"];
+    for i, v in pairs(workspace:GetChildren()) do
+        if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") and v.Name ~= "Player" then
+            if v.PrimaryPart ~= nil and v:FindFirstChild("Head") then
+                if (not isPartVisible(v.PrimaryPart) and not ASSettings["VisibleCheck"]) or (IsSleeping(v.Head) and not ASSettings["AimSleepers"]) then
+                    return nil;
+                end
+                local magnitude = (_Character.character.Middle.Position - v.PrimaryPart.Position).magnitude
+                if magnitude < shortestDistance then
+                    closestPlayer = v
+                    shortestDistance = magnitude
+                end
+            end
+        end
+    end
+    return closestPlayer
+end
+
+SilentAimSector:AddToggle('SilentAim_Enabled', { Text = 'Enable SilentAim', Default = false, Tooltip = nil, })
+Toggles.SilentAim_Enabled:OnChanged(function()
+    if Toggles.SilentAim_Enabled.Value then
+        _Aimbot["Enabled"] = false;
+    end
+
+    _Cameras["aaaa"] = Toggles.SilentAim_Enabled.Value;
+end)
+SilentAimSector:AddLabel('SilentAim Keybind'):AddKeyPicker('SilentAimbot_Bind',
+{ Default = 'MB2', Text = 'SilentAim', Tooltip = nil, NoUI = false, Mode = 'Hold', })
+local OrginalGetCFrame = _Camera.GetCFrame;
+_Camera.GetCFrame = function()
+    if _Cameras["aaaa"] and _Cameras["Abobus"] then
+        return CFrame.new(OrginalGetCFrame().p,
+            _Cameras["Abobus"].Position + Vector3.new((_Cameras["X_Offset"]), (_Cameras["Y_Offset"]), 0.001));
+    else
+        return OrginalGetCFrame();
+    end
+end
+task.spawn(function()
+    while task.wait() do
+        if Options.SilentAimbot_Bind:GetState() and _Cameras["aaaa"] then
+            local Target;
+            if ASSettings["AimType"] == "To Cursor" then
+                Target = getClosestPlayerToCursor();
+            else
+                Target = getClosestPlayerToPlayer();
+            end
+            if Target then
+                local Head = Target:FindFirstChild("Head");
+                if Head then
+                    local oldx = Head.Position.X;
+                    local oldy = Head.Position.Y;
+                    if ASSettings["Prediction"] == true then
+                        _Cameras["X_Offset"] = (Head.Position.X - oldx) * 1.7;
+                        _Cameras["Y_Offset"] = (Head.Position.Y - oldy);
+                    else
+                        _Cameras["X_Offset"] = 0
+                        _Cameras["Y_Offset"] = 0
+                    end
+                    _Cameras["Abobus"] = Head;
+                end
+            end
+        else
+            _Cameras["Abobus"] = nil;
+        end
+        if Library.Unloaded then break end
+    end
+end)
+SilentAimSector:AddDropdown('AimTypeDrop',
+    { Values = { "To Crosshair", "To Player" }, Default = 1, Multi = false, Text = 'Closest', Tooltip = nil, })
+Options.AimTypeDrop:OnChanged(function()
+    SilentAimSector["AimType"] = Options.AimTypeDrop.Value;
+end)
+SilentAimSector:AddSlider('Aim_Distance',
+    { Text = 'Distance', Default = 500, Min = 0, Max = 1000, Rounding = 0, Compact = false, })
+Options.Aim_Distance:OnChanged(function()
+    ASSettings["AimDis"] = Options.Aim_Distance.Value;
+end)
+SilentAimSector2:AddToggle('Predictions', { Text = 'Prediction', Default = false, Tooltip = nil, })
+Toggles.Predictions:OnChanged(function()
+    ASSettings["Prediction"] = Toggles.Predictions.Value;
+end)
+SilentAimSector2:AddToggle('Aim_Visible', { Text = 'Visible Check', Default = false, Tooltip = nil, })
+Toggles.Aim_Visible:OnChanged(function()
+    ASSettings["VisibleCheck"] = Toggles.Aim_Visible.Value;
+end)
+SilentAimSector2:AddToggle('Aim_Sleepers', { Text = 'Sleepers', Default = false, Tooltip = nil, })
+Toggles.Aim_Sleepers:OnChanged(function()
+    ASSettings["AimSleepers"] = Toggles.Aim_Sleepers.Value;
+end)
+
+
+local camera = game.Workspace.CurrentCamera
+local defaultFOV = camera.FieldOfView -- Default field of view
+local fov = 200 -- Desired field of view
+local isEnabled = false
+
+local function enableFOVChange()
+    isEnabled = true
+end
+
+local function disableFOVChange()
+    isEnabled = false
+    camera.FieldOfView = defaultFOV -- Restore default field of view
+end
+
+local runService = game:GetService("RunService")
+runService.RenderStepped:Connect(function()
+    if isEnabled then
+        camera.FieldOfView = fov
+    end
+end)
+
+CameraSect:AddToggle('FieldOfFiew',{
+    Text = '120 Fov',
+    Default = false,
+    Tooltip = nil,
+})
+Toggles.FieldOfFiew:OnChanged(function(Fov)
+    if Fov == true then
+        enableFOVChange()
+    elseif Fov == false then
+        disableFOVChange()
+    end
+end)
+
+
+
+_G.CircleSides = 100
+_G.CircleColor = Color3.fromRGB(1, 0, 0)
+_G.CircleTransparency = 1
+_G.CircleRadius = 100
+_G.CircleFilled = false
+_G.CircleVisible = true
+_G.CircleThickness = 1.3
+
+local FOVCircle = Drawing.new("Circle")
+
+FOVCircle.Position = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+FOVCircle.Radius = _G.CircleRadius
+FOVCircle.Filled = _G.CircleFilled
+FOVCircle.Color = _G.CircleColor
+FOVCircle.Visible = _G.CircleVisible
+FOVCircle.Radius = _G.CircleRadius
+FOVCircle.Transparency = _G.CircleTransparency
+FOVCircle.NumSides = _G.CircleSides
+FOVCircle.Thickness = _G.CircleThickness
